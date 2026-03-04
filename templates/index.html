@@ -1,58 +1,38 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>AI Image Classifier</title>
-    <style>
-        body {
-            font-family: Arial;
-            text-align: center;
-            margin-top: 50px;
-        }
-        img {
-            max-width: 300px;
-            margin-top: 20px;
-        }
-        .result {
-            margin-top: 30px;
-        }
-    </style>
+    <title>Image Classifier</title>
 </head>
-<body>
+<body style="text-align:center; font-family:Arial; margin-top:50px;">
 
-    <h1>AI Image Classifier</h1>
+<h1>Upload Image</h1>
 
-    <form method="POST" enctype="multipart/form-data">
-        <input type="file" name="image" required>
-        <br><br>
-        <button type="submit">Upload & Classify</button>
-    </form>
+<form method="POST" enctype="multipart/form-data">
+    <input type="file" name="image" required>
+    <br><br>
+    <button type="submit">Upload</button>
+</form>
 
-    {% if image_data %}
-        <div>
-            <h3>Uploaded Image:</h3>
-            <img src="data:image/jpeg;base64,{{ image_data | b64encode }}">
-        </div>
+{% if image_data %}
+    <h3>Uploaded Image:</h3>
+    <img src="data:image/jpeg;base64,{{ image_data }}" width="300">
+{% endif %}
+
+{% if result %}
+    <h3>Results:</h3>
+    {% if result.error %}
+        <p style="color:red;">{{ result.error }}</p>
+    {% else %}
+        <ul style="list-style:none;">
+        {% for item in result[:5] %}
+            <li>
+                <strong>{{ item.label }}</strong>
+                - {{ (item.score * 100) | round(2) }}%
+            </li>
+        {% endfor %}
+        </ul>
     {% endif %}
-
-    {% if result %}
-        <div class="result">
-            <h3>Results:</h3>
-
-            {% if result.error %}
-                <p style="color:red;">{{ result.error }}</p>
-                <p>{{ result.details }}</p>
-            {% else %}
-                <ul>
-                    {% for item in result[:5] %}
-                        <li>
-                            <strong>{{ item.label }}</strong>
-                            - {{ (item.score * 100) | round(2) }}%
-                        </li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
-        </div>
-    {% endif %}
+{% endif %}
 
 </body>
 </html>
