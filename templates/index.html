@@ -1,14 +1,13 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>AI Image Detector</title>
+    <title>Image Classifier</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
     <style>
         body {
             font-family: Arial, sans-serif;
-            background: #f4f6f9;
+            background: #f2f4f8;
             text-align: center;
             padding: 40px;
         }
@@ -16,10 +15,10 @@
         .container {
             background: white;
             padding: 30px;
-            border-radius: 10px;
+            border-radius: 12px;
             max-width: 600px;
             margin: auto;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
         }
 
         h1 {
@@ -34,9 +33,10 @@
             background: #4CAF50;
             color: white;
             border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
+            padding: 10px 25px;
+            border-radius: 6px;
             cursor: pointer;
+            font-size: 16px;
         }
 
         button:hover {
@@ -50,25 +50,39 @@
         }
 
         .result {
-            margin-top: 20px;
+            margin-top: 25px;
             padding: 15px;
-            background: #eef;
+            background: #eef2ff;
             border-radius: 8px;
-            text-align: left;
-            font-family: monospace;
-            font-size: 14px;
         }
 
         .error {
             color: red;
             font-weight: bold;
         }
+
+        .confidence-bar {
+            margin-top: 10px;
+            height: 20px;
+            background: #ddd;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            background: #4CAF50;
+            text-align: right;
+            color: white;
+            padding-right: 5px;
+            line-height: 20px;
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>AI Image Detector</h1>
+    <h1>AI Image Classifier</h1>
 
     <form method="POST" enctype="multipart/form-data">
         <input type="file" name="image" accept="image/*" required>
@@ -83,12 +97,19 @@
 
     {% if result %}
         <div class="result">
-            <h3>Detection Result:</h3>
+            <h3>Result:</h3>
 
             {% if result.error %}
                 <div class="error">{{ result.error }}</div>
             {% else %}
-                <pre>{{ result | tojson(indent=2) }}</pre>
+                <p><strong>Prediction:</strong> {{ result.label }}</p>
+                <p><strong>Confidence:</strong> {{ result.confidence }}</p>
+
+                <div class="confidence-bar">
+                    <div class="confidence-fill" style="width: {{ result.confidence }}">
+                        {{ result.confidence }}
+                    </div>
+                </div>
             {% endif %}
         </div>
     {% endif %}
