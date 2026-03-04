@@ -6,7 +6,6 @@ import base64
 app = Flask(__name__)
 
 HF_TOKEN = os.environ.get("HF_TOKEN")
-
 HF_API_URL = "https://api-inference.huggingface.co/models/openai/clip-vit-base-patch32"
 
 headers = {
@@ -16,8 +15,8 @@ headers = {
 def query_hf_model(image_bytes, labels):
     try:
         payload = {
-            "inputs": {
-                "image": base64.b64encode(image_bytes).decode("utf-8"),
+            "inputs": base64.b64encode(image_bytes).decode("utf-8"),
+            "parameters": {
                 "candidate_labels": labels
             }
         }
