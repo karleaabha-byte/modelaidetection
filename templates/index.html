@@ -1,16 +1,12 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <title>Image Classifier</title>
-</head>
-<body style="text-align:center; font-family:Arial; margin-top:50px;">
+<body style="text-align:center; margin-top:50px; font-family:Arial;">
 
-<h1>Upload Image</h1>
+<h1>AI Image Detector</h1>
 
 <form method="POST" enctype="multipart/form-data">
     <input type="file" name="image" required>
-    <br><br>
-    <button type="submit">Upload</button>
+    <button type="submit">Check Image</button>
 </form>
 
 {% if image_data %}
@@ -19,19 +15,11 @@
 {% endif %}
 
 {% if result %}
-    <h3>Results:</h3>
-    {% if result.error %}
-        <p style="color:red;">{{ result.error }}</p>
-    {% else %}
-        <ul style="list-style:none;">
-        {% for item in result[:5] %}
-            <li>
-                <strong>{{ item.label }}</strong>
-                - {{ (item.score * 100) | round(2) }}%
-            </li>
-        {% endfor %}
-        </ul>
-    {% endif %}
+    <h3>Detection Result:</h3>
+
+    {% for item in result %}
+        <p><strong>{{ item.label }}</strong>: {{ (item.score * 100) | round(2) }}%</p>
+    {% endfor %}
 {% endif %}
 
 </body>
