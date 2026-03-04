@@ -1,39 +1,60 @@
 from flask import Flask, render_template, request
 import requests
 import os
-import base64
-import json
 
 app = Flask(__name__)
 
-# Hugging Face Router API
+# Hugging Face Inference API
 HF_TOKEN = os.environ.get("HF_TOKEN")
-HF_API_URL = "https://router.huggingface.co/models/laion/CLIP-ViT-B-32-multilingual-v1"
+HF_API_URL = "https://api-inference.huggingface.co/models/google/vit-base-patch16-224"
 
 headers = {
-    "Authorization": f"Bearer {HF_TOKEN}",
-    "Content-Type": "application/json"
+    "Authorization": f"Bearer {HF_TOKEN}"
 }
 
 def query_hf_model(image_bytes):
-    """Send base64-encoded image to Hugging Face Router API and return JSON."""
+    """Send raw image bytes to Hugging Face and return JSON response."""
     try:
-        b64_image = base64.b64encode(image_bytes).decode("utf-8")
-        payload = json.dumps({"inputs": b64_image})
-        response = requests.post(HF_API_URL, headers=headers, data=payload, timeout=30)
+        response = requests.post(
+            HF_API_URL,
+            headers=headers,
+            data=image_bytes,
+            timeout=30
+        )
+
+        if response.status_code != 200:
+            return {
+                "error": f"HF Error {response.status_code}",
+                "details": response.text
+            }
+
         return response.json()
+
+    except requests.exceptions.Timeout:
+        return {"error": "Request timed out."}
     except Exception as e:
         return {"error": str(e)}
+
 
 @app.route("/", methods=["GET", "POST"])
 def index():
     result = None
+    image_url = None
+
     if request.method == "POST":
         image_file = request.files.get("image")
+
         if not image_file:
             result = {"error": "No file uploaded."}
         else:
-            result = query_hf_model(image_file.read())
-    return render_template("index.html", result=result)
+            image_bytes = image_file.read()
+            result = query_hf_model(image_bytes)
 
-# No app.run here; Gunicorn will start the app on Render
+            # For displaying uploaded image
+            image_file.seek(0)
+            image_url = image_file.read()
+
+    return render_template("index.html", result=result, image_data=image_url)
+
+
+# DO NOT add app.run() for Render
