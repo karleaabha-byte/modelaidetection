@@ -1,22 +1,32 @@
 import os
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from PIL import Image
 import torch
 from transformers import CLIPProcessor, CLIPModel
+import numpy as np
 
 # -------------------------
-# Flask App Setup
+# Environment Variables
+# -------------------------
+# HF_TOKEN for faster authenticated download
+hf_token = os.environ.get("HF_TOKEN")
+if hf_token:
+    os.environ["HF_HOME"] = os.path.expanduser("~/.cache/huggingface")
+    os.environ["HF_HUB_DISABLE_SYMLINKS_WARNING"] = "1"
+    os.environ["HUGGINGFACE_HUB_TOKEN"] = hf_token
+
+# -------------------------
+# Flask Setup
 # -------------------------
 app = Flask(__name__)
 app.config["UPLOAD_FOLDER"] = "static/uploads"
 os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
 
-# Database configuration (SQLite for simplicity; change to PostgreSQL for Render)
+# Database
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///ai_images.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
@@ -33,11 +43,14 @@ class ImageUpload(db.Model):
     final_score = db.Column(db.Float)
 
 # -------------------------
-# Load AI Model
+# Load smaller CLIP model once
 # -------------------------
 device = "cuda" if torch.cuda.is_available() else "cpu"
-model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32").to(device)
-processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
+model_name = "openai/clip-vit-base-patch16"  # smaller model ~330MB
+print("Loading CLIP model, please wait...")
+model = CLIPModel.from_pretrained(model_name).to(device)
+processor = CLIPProcessor.from_pretrained(model_name)
+print("Model loaded successfully!")
 
 labels = ["a real photograph", "an AI-generated image"]
 
@@ -59,7 +72,7 @@ def index():
             # Open image
             image = Image.open(image_path).convert("RGB")
 
-            # AI detection using CLIP
+            # CLIP detection
             inputs = processor(
                 text=labels,
                 images=image,
@@ -73,8 +86,8 @@ def index():
 
             score_model_a = round(probs[0][0].item() * 100, 2)
             score_model_b = round(probs[0][1].item() * 100, 2)
-            # Example frequency heuristic for model_c
-            import numpy as np
+
+            # Frequency heuristic for Model C
             img_array = np.array(image)
             score_model_c = round(min(np.var(img_array) / 10000, 1.0) * 100, 2)
 
@@ -87,7 +100,7 @@ def index():
                 "final_score": final_score
             }
 
-            # Save to database
+            # Save to DB
             img_record = ImageUpload(
                 filename=file.filename,
                 score_model_a=score_model_a,
@@ -100,5 +113,8 @@ def index():
 
     return render_template("index.html", result=result, image_path=image_path)
 
+# -------------------------
+# Run locally
+# -------------------------
 if __name__ == "__main__":
     app.run(debug=True)
