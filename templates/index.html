@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Image Classifier</title>
+    <title>ONNX Image Classifier</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
     <style>
@@ -21,14 +21,6 @@
             box-shadow: 0 5px 20px rgba(0,0,0,0.1);
         }
 
-        h1 {
-            margin-bottom: 20px;
-        }
-
-        input[type="file"] {
-            margin: 20px 0;
-        }
-
         button {
             background: #4CAF50;
             color: white;
@@ -36,7 +28,6 @@
             padding: 10px 25px;
             border-radius: 6px;
             cursor: pointer;
-            font-size: 16px;
         }
 
         button:hover {
@@ -50,7 +41,7 @@
         }
 
         .result {
-            margin-top: 25px;
+            margin-top: 20px;
             padding: 15px;
             background: #eef2ff;
             border-radius: 8px;
@@ -61,15 +52,15 @@
             font-weight: bold;
         }
 
-        .confidence-bar {
-            margin-top: 10px;
+        .bar {
             height: 20px;
             background: #ddd;
             border-radius: 10px;
             overflow: hidden;
+            margin-top: 10px;
         }
 
-        .confidence-fill {
+        .fill {
             height: 100%;
             background: #4CAF50;
             text-align: right;
@@ -82,11 +73,11 @@
 <body>
 
 <div class="container">
-    <h1>AI Image Classifier</h1>
+    <h1>ONNX Image Classifier</h1>
 
     <form method="POST" enctype="multipart/form-data">
         <input type="file" name="image" accept="image/*" required>
-        <br>
+        <br><br>
         <button type="submit">Analyze Image</button>
     </form>
 
@@ -97,7 +88,7 @@
 
     {% if result %}
         <div class="result">
-            <h3>Result:</h3>
+            <h3>Result</h3>
 
             {% if result.error %}
                 <div class="error">{{ result.error }}</div>
@@ -105,8 +96,8 @@
                 <p><strong>Prediction:</strong> {{ result.label }}</p>
                 <p><strong>Confidence:</strong> {{ result.confidence }}</p>
 
-                <div class="confidence-bar">
-                    <div class="confidence-fill" style="width: {{ result.confidence }}">
+                <div class="bar">
+                    <div class="fill" style="width: {{ result.confidence }}">
                         {{ result.confidence }}
                     </div>
                 </div>
