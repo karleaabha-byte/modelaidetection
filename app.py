@@ -7,8 +7,7 @@ import json
 app = Flask(__name__)
 
 HF_TOKEN = os.environ.get("HF_TOKEN")
-HF_API_URL = "https://router.huggingface.co/models/laion/CLIP-ViT-B-32-multilingual-v1"
-
+HF_API_URL = "https://api-inference.huggingface.co/models/openai/clip-vit-base-patch32"
 headers = {
     "Authorization": f"Bearer {HF_TOKEN}",
     "Content-Type": "application/json"
@@ -66,3 +65,4 @@ def index():
 
 
 # No app.run() (Render uses Gunicorn)
+
