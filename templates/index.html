@@ -1,26 +1,98 @@
 <!DOCTYPE html>
-<html>
-<body style="text-align:center; margin-top:50px; font-family:Arial;">
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AI Image Detector</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
+            text-align: center;
+            padding: 40px;
+        }
 
-<h1>AI Image Detector</h1>
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 600px;
+            margin: auto;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
 
-<form method="POST" enctype="multipart/form-data">
-    <input type="file" name="image" required>
-    <button type="submit">Check Image</button>
-</form>
+        h1 {
+            margin-bottom: 20px;
+        }
 
-{% if image_data %}
-    <h3>Uploaded Image:</h3>
-    <img src="data:image/jpeg;base64,{{ image_data }}" width="300">
-{% endif %}
+        input[type="file"] {
+            margin: 20px 0;
+        }
 
-{% if result %}
-    <h3>Detection Result:</h3>
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
 
-    {% for item in result %}
-        <p><strong>{{ item.label }}</strong>: {{ (item.score * 100) | round(2) }}%</p>
-    {% endfor %}
-{% endif %}
+        button:hover {
+            background: #45a049;
+        }
+
+        img {
+            margin-top: 20px;
+            max-width: 100%;
+            border-radius: 8px;
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background: #eef;
+            border-radius: 8px;
+            text-align: left;
+            font-family: monospace;
+            font-size: 14px;
+        }
+
+        .error {
+            color: red;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>AI Image Detector</h1>
+
+    <form method="POST" enctype="multipart/form-data">
+        <input type="file" name="image" accept="image/*" required>
+        <br>
+        <button type="submit">Analyze Image</button>
+    </form>
+
+    {% if image_data %}
+        <h3>Uploaded Image:</h3>
+        <img src="data:image/png;base64,{{ image_data }}">
+    {% endif %}
+
+    {% if result %}
+        <div class="result">
+            <h3>Detection Result:</h3>
+
+            {% if result.error %}
+                <div class="error">{{ result.error }}</div>
+            {% else %}
+                <pre>{{ result | tojson(indent=2) }}</pre>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
 
 </body>
 </html>
