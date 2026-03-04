@@ -6,25 +6,18 @@ import base64
 app = Flask(__name__)
 
 HF_TOKEN = os.environ.get("HF_TOKEN")
-HF_API_URL = "https://api-inference.huggingface.co/models/openai/clip-vit-base-patch32"
+HF_API_URL = "https://api-inference.huggingface.co/models/google/vit-base-patch16-224"
 
 headers = {
     "Authorization": f"Bearer {HF_TOKEN}"
 }
 
-def query_hf_model(image_bytes, labels):
+def query_hf_model(image_bytes):
     try:
-        payload = {
-            "inputs": base64.b64encode(image_bytes).decode("utf-8"),
-            "parameters": {
-                "candidate_labels": labels
-            }
-        }
-
         response = requests.post(
             HF_API_URL,
             headers=headers,
-            json=payload,
+            data=image_bytes,
             timeout=30
         )
 
@@ -47,17 +40,12 @@ def index():
 
     if request.method == "POST":
         image_file = request.files.get("image")
-        labels_input = request.form.get("labels")
 
         if not image_file:
             result = {"error": "No file uploaded."}
-        elif not labels_input:
-            result = {"error": "Please enter labels."}
         else:
             image_bytes = image_file.read()
-            labels = [label.strip() for label in labels_input.split(",")]
-
-            result = query_hf_model(image_bytes, labels)
+            result = query_hf_model(image_bytes)
             image_data = base64.b64encode(image_bytes).decode("utf-8")
 
     return render_template("index.html", result=result, image_data=image_data)
