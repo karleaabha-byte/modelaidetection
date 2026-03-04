@@ -4,11 +4,14 @@
     <title>AI Image Detector</title>
     <style>
         body { font-family: Arial; text-align: center; margin: 40px; background: #f7f7f7; }
-        img { max-width: 400px; margin-top: 20px; border-radius: 10px; }
-        .result { font-size: 20px; margin-top: 20px; }
+        img { max-width: 300px; margin-top: 20px; border-radius: 10px; }
+        .result { font-size: 18px; margin-top: 20px; }
         .box { background: #fff; padding: 30px; display: inline-block; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1);}
         button { padding: 10px 20px; background: black; color: white; border: none; border-radius: 5px; cursor: pointer;}
         button:hover { background: #333; }
+        table { margin: 20px auto; border-collapse: collapse; width: 90%; max-width: 800px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
+        th { background-color: #f2f2f2; }
     </style>
 </head>
 <body>
@@ -22,18 +25,43 @@
 
     {% if image_path %}
         <div>
+            <h3>Uploaded Image:</h3>
             <img src="{{ image_path }}">
         </div>
     {% endif %}
 
     {% if result %}
         <div class="result">
-            <p>Model A (Real Prob): {{ result.score_model_a }}%</p>
-            <p>Model B (AI Prob): {{ result.score_model_b }}%</p>
+            <p>Model A (Real Photo Probability): {{ result.score_model_a }}%</p>
+            <p>Model B (AI Probability): {{ result.score_model_b }}%</p>
             <p>Model C (Frequency Heuristic): {{ result.score_model_c }}%</p>
             <hr>
             <h2>Final AI Probability: {{ result.final_score }}%</h2>
         </div>
+    {% endif %}
+
+    {% if all_images %}
+        <h2>History of Uploaded Images</h2>
+        <table>
+            <tr>
+                <th>Image</th>
+                <th>Model A (%)</th>
+                <th>Model B (%)</th>
+                <th>Model C (%)</th>
+                <th>Final Score (%)</th>
+                <th>Uploaded At</th>
+            </tr>
+            {% for img in all_images %}
+            <tr>
+                <td><img src="{{ url_for('static', filename='uploads/' + img.filename) }}" width="100"></td>
+                <td>{{ img.score_model_a }}</td>
+                <td>{{ img.score_model_b }}</td>
+                <td>{{ img.score_model_c }}</td>
+                <td>{{ img.final_score }}</td>
+                <td>{{ img.uploaded_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+            </tr>
+            {% endfor %}
+        </table>
     {% endif %}
 </div>
 
