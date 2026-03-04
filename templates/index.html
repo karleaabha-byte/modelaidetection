@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AI Image Detector</title>
+    <style>
+        body { font-family: Arial; text-align: center; margin: 40px; background: #f7f7f7; }
+        img { max-width: 400px; margin-top: 20px; border-radius: 10px; }
+        .result { font-size: 20px; margin-top: 20px; }
+        .box { background: #fff; padding: 30px; display: inline-block; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1);}
+        button { padding: 10px 20px; background: black; color: white; border: none; border-radius: 5px; cursor: pointer;}
+        button:hover { background: #333; }
+    </style>
+</head>
+<body>
+
+<div class="box">
+    <h1>AI Image Detector</h1>
+    <form method="POST" enctype="multipart/form-data">
+        <input type="file" name="image" required>
+        <button type="submit">Analyze</button>
+    </form>
+
+    {% if image_path %}
+        <div>
+            <img src="{{ image_path }}">
+        </div>
+    {% endif %}
+
+    {% if result %}
+        <div class="result">
+            <p>Model A (Real Prob): {{ result.score_model_a }}%</p>
+            <p>Model B (AI Prob): {{ result.score_model_b }}%</p>
+            <p>Model C (Frequency Heuristic): {{ result.score_model_c }}%</p>
+            <hr>
+            <h2>Final AI Probability: {{ result.final_score }}%</h2>
+        </div>
+    {% endif %}
+</div>
+
+</body>
+</html>
