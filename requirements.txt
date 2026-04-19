@@ -4,3 +4,12 @@ numpy
 Pillow
 gunicorn
 
+streamlit
+numpy
+pandas
+matplotlib
+seaborn
+pillow
+onnxruntime
+scikit-learn
+scipy
